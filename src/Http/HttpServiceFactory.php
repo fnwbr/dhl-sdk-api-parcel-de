@@ -14,8 +14,10 @@ use Dhl\Sdk\ParcelDe\Shipping\Api\ShipmentServiceInterface;
 use Dhl\Sdk\ParcelDe\Shipping\Exception\ServiceExceptionFactory;
 use Dhl\Sdk\ParcelDe\Shipping\Http\ClientPlugin\OrderErrorPlugin;
 use Dhl\Sdk\ParcelDe\Shipping\Http\ClientPlugin\RequestValidatorPlugin;
+use Dhl\Sdk\ParcelDe\Shipping\Model\ResponseMapper\CreateManifestResponseMapper;
 use Dhl\Sdk\ParcelDe\Shipping\Model\ResponseMapper\CreateShipmentResponseMapper;
 use Dhl\Sdk\ParcelDe\Shipping\Model\ResponseMapper\DeleteShipmentResponseMapper;
+use Dhl\Sdk\ParcelDe\Shipping\Model\ResponseMapper\GetManifestResponseMapper;
 use Dhl\Sdk\ParcelDe\Shipping\Model\ResponseMapper\ValidateShipmentResponseMapper;
 use Dhl\Sdk\ParcelDe\Shipping\Serializer\JsonSerializer;
 use Dhl\Sdk\ParcelDe\Shipping\Service\ShipmentService;
@@ -103,6 +105,8 @@ class HttpServiceFactory implements ServiceFactoryInterface
             new ValidateShipmentResponseMapper(),
             new CreateShipmentResponseMapper(),
             new DeleteShipmentResponseMapper(),
+            new GetManifestResponseMapper(),
+            new CreateManifestResponseMapper(),
             $requestFactory,
             $streamFactory
         );

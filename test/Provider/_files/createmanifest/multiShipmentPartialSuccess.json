@@ -1,0 +1,24 @@
+{
+  "status": {
+    "title": "Multi-Status",
+    "statusCode": 207,
+    "detail": "1 of 2 shipments successfully manifested."
+  },
+  "items": [
+    {
+      "shipmentNo": "0034043333301010000010102",
+      "sstatus": {
+        "title": "Already manifested",
+        "statusCode": 400,
+        "detail": "Shipment has already been manifested."
+      }
+    },
+    {
+      "shipmentNo": "0034043333301010000010004",
+      "sstatus": {
+        "title": "OK",
+        "statusCode": 200
+      }
+    }
+  ]
+}

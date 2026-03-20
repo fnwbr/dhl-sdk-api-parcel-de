@@ -8,6 +8,7 @@ declare(strict_types=1);
 
 namespace Dhl\Sdk\ParcelDe\Shipping\Api;
 
+use Dhl\Sdk\ParcelDe\Shipping\Api\Data\ManifestInterface;
 use Dhl\Sdk\ParcelDe\Shipping\Api\Data\OrderConfigurationInterface;
 use Dhl\Sdk\ParcelDe\Shipping\Api\Data\ShipmentInterface;
 use Dhl\Sdk\ParcelDe\Shipping\Api\Data\ValidationResultInterface;
@@ -71,5 +72,36 @@ interface ShipmentServiceInterface
     public function cancelShipments(
         array $shipmentNumbers,
         string $profile = OrderConfigurationInterface::DEFAULT_PROFILE
+    ): array;
+
+    /**
+     * Retrieve the manifest document for a given date.
+     *
+     * @throws AuthenticationException
+     * @throws DetailedServiceException
+     * @throws ServiceException
+     */
+    public function getManifests(
+        ?string $billingNumber = null,
+        ?string $date = null,
+        ?string $includeDocs = null
+    ): ManifestInterface;
+
+    /**
+     * Mark shipments as being ready for shipping (close out / manifest).
+     *
+     * @param string[] $shipmentNumbers
+     *
+     * @return string[]
+     *
+     * @throws AuthenticationException
+     * @throws DetailedServiceException
+     * @throws ServiceException
+     */
+    public function createManifests(
+        string $profile = OrderConfigurationInterface::DEFAULT_PROFILE,
+        array $shipmentNumbers = [],
+        ?string $billingNumber = null,
+        bool $all = false
     ): array;
 }

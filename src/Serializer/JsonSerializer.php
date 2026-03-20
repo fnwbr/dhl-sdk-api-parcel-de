@@ -8,6 +8,8 @@ declare(strict_types=1);
 
 namespace Dhl\Sdk\ParcelDe\Shipping\Serializer;
 
+use Dhl\Sdk\ParcelDe\Shipping\Model\ManifestingResponse;
+use Dhl\Sdk\ParcelDe\Shipping\Model\ManifestResponse;
 use Dhl\Sdk\ParcelDe\Shipping\Model\ShipmentResponse;
 
 /**
@@ -73,6 +75,42 @@ class JsonSerializer
 
         /** @var ShipmentResponse $mappedResponse */
         $mappedResponse = $jsonMapper->map($response, new ShipmentResponse());
+
+        return $mappedResponse;
+    }
+
+    /**
+     * @throws \JsonMapper_Exception
+     * @throws \JsonException
+     */
+    public function decodeManifestResponse(string $jsonResponse): ManifestResponse
+    {
+        $jsonMapper = new \JsonMapper();
+        $jsonMapper->bIgnoreVisibility = true;
+        $jsonMapper->classMap = $this->classMap;
+
+        $response = \json_decode($jsonResponse, false, 512, JSON_THROW_ON_ERROR);
+
+        /** @var ManifestResponse $mappedResponse */
+        $mappedResponse = $jsonMapper->map($response, new ManifestResponse());
+
+        return $mappedResponse;
+    }
+
+    /**
+     * @throws \JsonMapper_Exception
+     * @throws \JsonException
+     */
+    public function decodeManifestingResponse(string $jsonResponse): ManifestingResponse
+    {
+        $jsonMapper = new \JsonMapper();
+        $jsonMapper->bIgnoreVisibility = true;
+        $jsonMapper->classMap = $this->classMap;
+
+        $response = \json_decode($jsonResponse, false, 512, JSON_THROW_ON_ERROR);
+
+        /** @var ManifestingResponse $mappedResponse */
+        $mappedResponse = $jsonMapper->map($response, new ManifestingResponse());
 
         return $mappedResponse;
     }

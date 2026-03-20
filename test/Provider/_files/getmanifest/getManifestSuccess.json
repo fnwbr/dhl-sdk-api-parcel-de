@@ -1,0 +1,16 @@
+{
+  "status": {
+    "title": "OK",
+    "statusCode": 200,
+    "detail": "Manifest document retrieved successfully."
+  },
+  "manifestDate": "2024-01-15",
+  "manifest": {
+    "b64": [
+      "JVBERi0xLjQKJeLjz9MKNSAwIG9-manifest1",
+      "JVBERi0xLjQKJeLjz9MKNSAwIG9-manifest2"
+    ],
+    "fileFormat": "PDF",
+    "printFormat": "A4"
+  }
+}
