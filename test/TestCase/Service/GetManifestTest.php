@@ -30,8 +30,6 @@ class GetManifestTest extends TestCase
     /**
      * Assert successful manifest retrieval.
      *
-     *
-     *
      * @throws ServiceException
      */
     #[\PHPUnit\Framework\Attributes\DataProvider('successDataProvider')]

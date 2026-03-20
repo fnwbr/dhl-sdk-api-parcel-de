@@ -49,7 +49,6 @@ class CreateManifestTest extends TestCase
     /**
      * Test manifest creation success case (all shipments manifested, no issues).
      *
-     *
      * @param string[] $shipmentNumbers
      *
      * @throws AuthenticationException
@@ -109,7 +108,6 @@ class CreateManifestTest extends TestCase
 
     /**
      * Test manifest creation partial success case (some shipments manifested).
-     *
      *
      * @param string[] $shipmentNumbers
      *
@@ -173,7 +171,6 @@ class CreateManifestTest extends TestCase
 
     /**
      * Test manifest creation failure case.
-     *
      *
      * @param string[] $shipmentNumbers
      *
