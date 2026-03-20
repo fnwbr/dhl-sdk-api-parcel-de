@@ -14,8 +14,11 @@ use Dhl\Sdk\ParcelDe\Shipping\Exception\AuthenticationErrorHttpException;
 use Dhl\Sdk\ParcelDe\Shipping\Exception\DetailedErrorHttpException;
 use Dhl\Sdk\ParcelDe\Shipping\Exception\SchemaErrorException;
 use Dhl\Sdk\ParcelDe\Shipping\Exception\ServiceExceptionFactory;
+use Dhl\Sdk\ParcelDe\Shipping\Model\ManifestRequest;
+use Dhl\Sdk\ParcelDe\Shipping\Model\ResponseMapper\CreateManifestResponseMapper;
 use Dhl\Sdk\ParcelDe\Shipping\Model\ResponseMapper\CreateShipmentResponseMapper;
 use Dhl\Sdk\ParcelDe\Shipping\Model\ResponseMapper\DeleteShipmentResponseMapper;
+use Dhl\Sdk\ParcelDe\Shipping\Model\ResponseMapper\GetManifestResponseMapper;
 use Dhl\Sdk\ParcelDe\Shipping\Model\ResponseMapper\ValidateShipmentResponseMapper;
 use Dhl\Sdk\ParcelDe\Shipping\Model\ShipmentOrderRequest;
 use Dhl\Sdk\ParcelDe\Shipping\Serializer\JsonSerializer;
@@ -27,6 +30,7 @@ use Psr\Http\Message\StreamFactoryInterface;
 class ShipmentService implements ShipmentServiceInterface
 {
     private const OPERATION_ORDERS = 'orders';
+    private const OPERATION_MANIFESTS = 'manifests';
 
     public function __construct(
         private readonly ClientInterface $client,
@@ -35,6 +39,8 @@ class ShipmentService implements ShipmentServiceInterface
         private readonly ValidateShipmentResponseMapper $validateShipmentResponseMapper,
         private readonly CreateShipmentResponseMapper $createShipmentResponseMapper,
         private readonly DeleteShipmentResponseMapper $deleteShipmentResponseMapper,
+        private readonly GetManifestResponseMapper $getManifestResponseMapper,
+        private readonly CreateManifestResponseMapper $createManifestResponseMapper,
         private readonly RequestFactoryInterface $requestFactory,
         private readonly StreamFactoryInterface $streamFactory
     ) {
@@ -198,6 +204,81 @@ class ShipmentService implements ShipmentServiceInterface
         } catch (AuthenticationErrorHttpException $exception) {
             throw ServiceExceptionFactory::createAuthenticationException($exception);
         } catch (DetailedErrorHttpException $exception) {
+            throw ServiceExceptionFactory::createDetailedServiceException($exception);
+        } catch (\Throwable $exception) {
+            throw ServiceExceptionFactory::createServiceException($exception);
+        }
+    }
+
+    public function getManifests(
+        ?string $billingNumber = null,
+        ?string $date = null,
+        ?string $includeDocs = null
+    ): \Dhl\Sdk\ParcelDe\Shipping\Api\Data\ManifestInterface {
+        $requestParams = [];
+        if ($billingNumber !== null) {
+            $requestParams['billingNumber'] = $billingNumber;
+        }
+        if ($date !== null) {
+            $requestParams['date'] = $date;
+        }
+        if ($includeDocs !== null) {
+            $requestParams['includeDocs'] = $includeDocs;
+        }
+
+        $uri = sprintf('%s/%s', $this->baseUrl, self::OPERATION_MANIFESTS);
+        if ($requestParams !== []) {
+            $uri = sprintf('%s?%s', $uri, http_build_query($requestParams));
+        }
+
+        try {
+            $httpRequest = $this->requestFactory->createRequest('GET', $uri);
+
+            $response = $this->client->sendRequest($httpRequest);
+            $responseJson = (string) $response->getBody();
+            $responseObject = $this->serializer->decodeManifestResponse($responseJson);
+
+            return $this->getManifestResponseMapper->map($responseObject);
+        } catch (AuthenticationErrorHttpException $exception) {
+            throw ServiceExceptionFactory::createAuthenticationException($exception);
+        } catch (DetailedErrorHttpException $exception) {
+            throw ServiceExceptionFactory::createDetailedServiceException($exception);
+        } catch (\Throwable $exception) {
+            throw ServiceExceptionFactory::createServiceException($exception);
+        }
+    }
+
+    public function createManifests(
+        string $profile = OrderConfigurationInterface::DEFAULT_PROFILE,
+        array $shipmentNumbers = [],
+        ?string $billingNumber = null,
+        bool $all = false
+    ): array {
+        $requestParams = [];
+        if ($all) {
+            $requestParams['all'] = 'true';
+        }
+
+        $uri = sprintf('%s/%s', $this->baseUrl, self::OPERATION_MANIFESTS);
+        if ($requestParams !== []) {
+            $uri = sprintf('%s?%s', $uri, http_build_query($requestParams));
+        }
+
+        try {
+            $manifestRequest = new ManifestRequest($profile, $shipmentNumbers, $billingNumber);
+            $payload = $this->serializer->encode($manifestRequest);
+            $stream = $this->streamFactory->createStream($payload);
+
+            $httpRequest = $this->requestFactory->createRequest('POST', $uri)->withBody($stream);
+
+            $response = $this->client->sendRequest($httpRequest);
+            $responseJson = (string) $response->getBody();
+            $responseObject = $this->serializer->decodeManifestingResponse($responseJson);
+
+            return $this->createManifestResponseMapper->map($responseObject);
+        } catch (AuthenticationErrorHttpException $exception) {
+            throw ServiceExceptionFactory::createAuthenticationException($exception);
+        } catch (DetailedErrorHttpException | SchemaErrorException $exception) {
             throw ServiceExceptionFactory::createDetailedServiceException($exception);
         } catch (\Throwable $exception) {
             throw ServiceExceptionFactory::createServiceException($exception);
